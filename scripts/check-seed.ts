@@ -1,0 +1,17 @@
+import {buildDataset} from '../lib/data/seed';
+const d = buildDataset();
+const by = <T,>(a: T[], f: (x: T) => string) => a.reduce((m, x) => ((m[f(x)] = (m[f(x)] ?? 0) + 1), m), {} as Record<string, number>);
+console.log('students', d.students.length, 'families', d.families.length, 'classes', d.classes.length, 'enrollments', d.enrollments.length);
+console.log(by(d.students, s => s.status), by(d.students, s => s.group), by(d.students, s => s.sport), by(d.students, s => String(s.level)));
+console.log('classes/loc', by(d.classes, c => c.locationId), by(d.classes, c => String(c.weekday)), by(d.classes, c => String(c.startHour)));
+const seats = by(d.enrollments, e => e.classId);
+console.log('occupancy', by(d.classes, c => `${seats[c.id] ?? 0}/${c.capacity}`));
+console.log('over', d.classes.filter(c => (seats[c.id] ?? 0) > c.capacity).length);
+const cc = by(d.classes, c => `${c.courtId}|${c.weekday}|${c.startHour}`); console.log('court conflicts', Object.values(cc).filter(v => v > 1).length);
+const co = by(d.classes, c => `${c.coachId}|${c.weekday}|${c.startHour}`); console.log('coach conflicts', Object.values(co).filter(v => v > 1).length);
+console.log('coach load', by(d.classes, c => c.coachId));
+const unplaced = d.students.filter(s => s.status === 'active' && d.enrollments.filter(e => e.studentId === s.id).length < s.frequency);
+console.log('active under frequency', unplaced.length);
+const sarah = d.students[0]; const sc = d.enrollments.filter(e => e.studentId === sarah.id).map(e => d.classes.find(c => c.id === e.classId)!);
+console.log(sarah.firstName, sarah.availability, sc.map(c => `${c.weekday}@${c.startHour} ${c.courtId}`));
+console.log('monday option', d.classes.filter(c => c.locationId === sarah.homeLocationId && c.sport === 'tennis' && c.group === 'adult' && c.level === 1 && c.weekday === 1).map(c => `${c.startHour} ${seats[c.id] ?? 0}/${c.capacity}`));

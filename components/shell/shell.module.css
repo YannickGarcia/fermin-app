@@ -1,0 +1,16 @@
+.trigger {
+  display: inline-flex; align-items: center; gap: var(--spacing-2);
+  height: 36px; padding: 0 var(--spacing-3); min-width: 0;
+  border: 1px solid var(--color-border-emphasized); border-radius: var(--radius-full);
+  background: var(--color-background-surface); color: var(--color-text-secondary);
+  font: inherit; font-size: var(--font-size-base); cursor: pointer;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.trigger:hover { border-color: var(--color-text-secondary); }
+.trigger:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.triggerText { min-width: 14ch; text-align: start; white-space: nowrap; }
+.kbd { font: inherit; font-size: var(--font-size-sm); padding: 1px 6px; border-radius: var(--radius-inner); background: var(--color-background-muted); color: var(--color-text-secondary); }
+@media (max-width: 760px) {
+  .triggerText, .kbd { display: none; }
+  .trigger { padding: 0 var(--spacing-2); }
+}

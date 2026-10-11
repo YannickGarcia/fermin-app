@@ -1,0 +1,132 @@
+/* The calendar is the one screen Astryx has no component for, so its grid is
+   hand-built. Every value is an Astryx token or a Fermín extension token
+   declared in app/globals.css. */
+.screen { font-size: var(--font-size-base); display: grid; grid-template-columns: minmax(0, 1fr) auto; height: 100%; min-height: 0; overflow: hidden; background: var(--color-background-surface); }
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.aside { width: 360px; height: 100%; overflow-y: auto; border-inline-start: 1px solid var(--color-border-emphasized); background: var(--color-background-surface); }
+
+/* ── Toolbar ─────────────────────────────────────────────────────────── */
+.toolbar { padding: var(--spacing-4) var(--spacing-4) 0; }
+.titleRow { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); }
+.weekNav { display: flex; align-items: center; gap: var(--spacing-1); min-width: 0; }
+.weekTitle { margin-inline: var(--spacing-2) var(--spacing-3); min-width: 0; }
+.weekTitle h1 { margin: 0; font-family: var(--font-family-heading); font-size: var(--font-size-2xl); font-weight: var(--font-weight-semibold); line-height: 1.2; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.weekTitle p { margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.filterRow { display: flex; align-items: center; gap: var(--spacing-1-5); padding-block: var(--spacing-3); flex-wrap: wrap; }
+.levels { display: inline-flex; gap: var(--spacing-1); }
+.levelToggle { display: inline-flex; align-items: center; gap: var(--spacing-1-5); height: 28px; padding: 0 var(--spacing-2-5, 10px) 0 var(--spacing-2); border: 1px solid var(--color-border-emphasized); border-radius: var(--radius-full); background: transparent; color: var(--color-text-primary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; transition: background var(--duration-fast), border-color var(--duration-fast); }
+.levelToggle:hover { border-color: var(--lv); }
+.levelToggle[aria-pressed='true'] { background: var(--lv-bg); border-color: var(--lv); color: var(--lv-text); font-weight: var(--font-weight-semibold); }
+.levelToggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.freeDot { width: 8px; height: 8px; border-radius: var(--radius-full); border: 1.5px solid var(--color-text-secondary); box-sizing: border-box; flex: none; }
+.levelToggle:not([data-level])[aria-pressed='true'] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
+.levelToggle:not([data-level])[aria-pressed='true'] .freeDot { border-color: var(--color-on-accent); }
+.ball { width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--lv, var(--color-track)); flex: none; }
+.program { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-5); margin: 0; padding-bottom: var(--spacing-3); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.programLead { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+.programItem strong { color: var(--color-text-primary); font-weight: var(--font-weight-medium); margin-inline-end: var(--spacing-1); }
+
+.focusBar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); margin: 0 var(--spacing-4) var(--spacing-2); padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-3); border-radius: var(--radius-element); background: var(--color-background-muted); border: 1px solid var(--color-border-emphasized); }
+
+/* ── Grid shared by week and day ─────────────────────────────────────── */
+.scroller { flex: 1; min-height: 0; overflow: auto; padding: 0 var(--spacing-4) var(--spacing-5); scroll-padding: 96px 0 24px; }
+.week, .day { display: grid; align-items: stretch; }
+.week { grid-template-columns: 52px repeat(var(--cols), minmax(148px, 1fr)); }
+.day { grid-template-columns: 52px repeat(var(--cols), minmax(176px, 1fr)); }
+.row { display: contents; }
+.corner { position: sticky; top: 0; left: 0; z-index: 3; background: var(--color-background-surface); border-bottom: 1px solid var(--color-border-emphasized); }
+.dayHead, .courtHead { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: var(--spacing-1); padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-3); background: var(--color-background-surface); border: 0; border-bottom: 1px solid var(--color-border-emphasized); border-inline-start: 1px solid var(--fermin-grid-line); text-align: start; font: inherit; color: var(--color-text-primary); }
+.dayHead { cursor: pointer; }
+.dayHead:hover .dayNum { text-decoration: underline; }
+.dayHead:focus-visible, .dayTab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+.dayName { display: flex; align-items: baseline; gap: var(--spacing-1-5); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.dayNum { font-family: var(--font-family-heading); font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); font-variant-numeric: tabular-nums; line-height: 1.1; }
+[data-today] .dayNum { background: var(--color-accent); color: var(--color-on-accent); border-radius: var(--radius-full); padding: 0 var(--spacing-2); }
+.hour { position: sticky; left: 0; z-index: 1; padding: var(--spacing-1-5) var(--spacing-2) 0 0; text-align: end; font-size: var(--font-size-sm); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; background: var(--color-background-surface); border-top: 1px solid var(--fermin-grid-line); }
+.cell { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--spacing-1); min-height: 56px; padding: var(--spacing-1); border-top: 1px solid var(--fermin-grid-line); border-inline-start: 1px solid var(--fermin-grid-line);
+  /* The grid doubles as the rain forecast: the wetter the hour, the bluer the cell. */
+  background-color: color-mix(in srgb, var(--fermin-rain) calc(var(--rain, 0) * 0.3%), transparent); }
+.cell[data-dense] { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+
+/* ── Rain summary in a day header ────────────────────────────────────── */
+.rain { display: inline-flex; align-items: center; gap: var(--spacing-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); white-space: nowrap; }
+.rain strong { font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.rain[data-wet] { color: var(--fermin-rain-text); }
+.rainBars { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; }
+.rainBar { width: 5px; height: max(2px, calc(var(--p) * 0.16px)); border-radius: 1px; background: color-mix(in srgb, var(--fermin-rain) calc(var(--p) * 1%), var(--color-track)); }
+.rainBar[data-wet] { background: var(--fermin-rain-strong); }
+.noForecast { font-size: var(--font-size-sm); color: var(--color-text-disabled); }
+.rainIcon { color: var(--fermin-rain-strong); flex: none; }
+
+/* ── Class chip (week view) ──────────────────────────────────────────── */
+.chip, .card { width: 100%; min-width: 0; border: 0; border-radius: var(--radius-inner); text-align: start; font: inherit; color: var(--color-text-primary); cursor: pointer;
+  background: var(--lv-bg);
+  box-shadow: inset 3px 0 0 var(--lv);
+  transition: opacity var(--duration-medium-min) var(--ease-standard, ease), box-shadow var(--duration-fast), filter var(--duration-medium-min); }
+.chip { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-1-5); min-height: 40px; padding: var(--spacing-1) var(--spacing-2) var(--spacing-1) var(--spacing-3); }
+.chip[data-dense] { min-height: 28px; padding-block: 2px; }
+.chip:hover, .card:hover { box-shadow: inset 3px 0 0 var(--lv), 0 0 0 1px var(--lv); }
+.chip:focus-visible, .card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.chip[data-selected], .card[data-selected] { box-shadow: inset 3px 0 0 var(--lv), 0 0 0 2px var(--color-accent); }
+.chip[data-emphasis='off'], .card[data-emphasis='off'] { opacity: 0.26; filter: saturate(0.5); }
+.chip[data-emphasis='on'], .card[data-emphasis='on'] { box-shadow: inset 3px 0 0 var(--lv), 0 0 0 2px var(--color-accent), var(--shadow-med); }
+.chip[data-cancelled], .card[data-cancelled] { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--color-border) 6px 7px), var(--color-background-surface); color: var(--color-text-secondary); }
+.chip[data-cancelled] .chipTitle, .card[data-cancelled] .cardTitle { text-decoration: line-through; }
+.chipMain { display: flex; flex-direction: column; min-width: 0; }
+.chipTitle { display: flex; align-items: baseline; gap: var(--spacing-1-5); min-width: 0; font-size: var(--font-size-base); line-height: 1.3; }
+.chipSede { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.chipCourt { font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.chipCoach { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chipMeta { font-size: var(--font-size-sm); line-height: 1.3; color: var(--lv-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chipEnd { display: inline-flex; align-items: center; gap: var(--spacing-1-5); flex: none; }
+.mixDot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--lv); flex: none; }
+.seats { display: inline-flex; gap: 2px; flex: none; }
+.seatTaken, .seatFree { width: 6px; height: 6px; border-radius: var(--radius-full); box-sizing: border-box; }
+.seatTaken { background: var(--color-text-primary); }
+.seatFree { border: 1.5px solid var(--color-text-secondary); }
+
+/* ── Day view: one column per court, names visible ───────────────────── */
+.courtName { font-weight: var(--font-weight-semibold); }
+.courtSede { font-weight: var(--font-weight-normal); color: var(--color-text-secondary); }
+.courtKind { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.card { display: flex; flex-direction: column; gap: var(--spacing-1); padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-3); height: 100%; }
+.cardHead { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
+.cardTitle { font-weight: var(--font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cardMeta { font-size: var(--font-size-sm); color: var(--lv-text); }
+.cardFlag { display: inline-flex; align-items: center; gap: var(--spacing-1); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--fermin-rain-text); }
+.roster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--spacing-2); margin-top: var(--spacing-1); line-height: 1.45; }
+.roster > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rosterName[data-me] { font-weight: var(--font-weight-bold); grid-column: 1 / -1; order: -1; }
+.rosterName[data-me]::before { content: '▸ '; }
+.rosterName[data-absent] { text-decoration: line-through; color: var(--color-text-secondary); }
+.rosterName[data-guest] { font-style: italic; }
+.rosterFree { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+
+.dayStrip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--spacing-1); padding: 0 var(--spacing-4) var(--spacing-2); }
+.dayTab { display: flex; flex-direction: column; gap: var(--spacing-1); min-width: 0; padding: var(--spacing-1-5) var(--spacing-2); border: 1px solid var(--color-border); border-radius: var(--radius-element); background: transparent; font: inherit; color: var(--color-text-primary); text-align: start; cursor: pointer; overflow: hidden; }
+.dayTab[aria-selected='true'] { border-color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); background: var(--color-background-muted); }
+
+.agenda { display: flex; flex-direction: column; gap: var(--spacing-4); padding-top: var(--spacing-2); padding-bottom: var(--spacing-12); }
+.agendaHour { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.agendaHead { display: flex; align-items: baseline; justify-content: space-between; }
+.agendaTime { font-family: var(--font-family-heading); font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.agendaRain { display: inline-flex; align-items: center; gap: var(--spacing-1); font-size: var(--font-size-sm); color: var(--fermin-rain-text); }
+.agendaEmpty { color: var(--color-text-secondary); }
+.fab { position: fixed; inset-inline-end: var(--spacing-4); bottom: var(--spacing-4); z-index: 5; box-shadow: var(--shadow-high); border-radius: var(--radius-element); }
+
+@media (max-width: 760px) {
+  .toolbar { padding: var(--spacing-3) var(--spacing-3) 0; }
+  .weekTitle h1 { font-size: var(--font-size-xl); }
+  .filterRow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--spacing-3) * -1); padding-inline: var(--spacing-3); }
+  .filterRow > * { flex: none; }
+  .focusBar { margin-inline: var(--spacing-3); }
+  .dayStrip { padding-inline: var(--spacing-3); }
+  .scroller { padding-inline: var(--spacing-3); }
+  .rainWord { display: none; }
+  .rainBars { display: none; }
+  .dayTab { align-items: center; padding-inline: var(--spacing-1); }
+  .dayName { flex-direction: column; align-items: center; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip, .card { transition: none; }
+}

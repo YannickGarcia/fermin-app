@@ -1,0 +1,26 @@
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
+
+/*
+ * Fermín extensions to the Astryx neutral theme.
+ * Every value below points at an Astryx token; nothing here invents a colour.
+ *
+ * Levels use the ball colours of junior tennis (red, orange, green, yellow),
+ * which is how coaches and families already talk about level.
+ * Blue is reserved for rain and is used for nothing else.
+ */
+[data-astryx-theme] {
+  --fermin-rain: var(--color-data-blue-3);
+  --fermin-rain-strong: var(--color-data-blue-4);
+  --fermin-rain-text: var(--color-text-blue);
+  --fermin-grid-line: var(--color-border);
+}
+[data-level='1'] { --lv: var(--color-data-categorical-red); --lv-tint: var(--color-background-red); --lv-text: var(--color-text-red); }
+[data-level='2'] { --lv: var(--color-data-categorical-orange); --lv-tint: var(--color-background-orange); --lv-text: var(--color-text-orange); }
+[data-level='3'] { --lv: var(--color-data-categorical-green); --lv-tint: var(--color-background-green); --lv-text: var(--color-text-green); }
+[data-level='4'] { --lv: var(--color-border-yellow); --lv-tint: var(--color-background-yellow); --lv-text: var(--color-text-yellow); }
+[data-level] { --lv-bg: color-mix(in srgb, var(--lv-tint) 42%, var(--color-background-surface)); }
+
+html, body { height: 100%; }
+
+body { font-size: var(--font-size-base); }
